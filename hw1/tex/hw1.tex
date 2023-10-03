@@ -90,7 +90,7 @@ The \href{\gitlabpath/hw1/sat/sample.cnf}{sample CNF} is given in the \dimacs\ f
 $(\neg x_1 \lor x_2 \lor x_4) \wedge (x_1 \lor x_3)  \wedge (\neg x_4 \lor \neg x_2) \wedge (\neg x_4 \lor \neg x_1 \lor x_2)  \wedge (x_3 \lor \neg x_1)  \wedge (\neg x_3 \lor \neg x_2 \lor x_4) \wedge (x_1 \lor x_4) \wedge (\neg x_2 \lor x_1)$
 \end{center}
 
-To start, clone \cadical\ from GitHub and checkout tag \texttt{sc18}. Next, follow the instructions in the included \texttt{README.md} file to configure and build the solver in logging mode using \cc{./configure -l && make}. Finally, run the solver (in \texttt{build/cadical}) with the logging (\texttt{-l}) option on  \href{\gitlab/tree/master/hw1/sat/sample.cnf}{\texttt{sample.cnf}}, and the solver will output a detailed trace of its execution.
+To start, clone \cadical\ from GitHub and checkout tag \texttt{sc18}. Next, follow the instructions in the included \texttt{README.md} file to configure and build the solver in logging mode using \cc{./configure -l && make}. Finally, run the solver (in \texttt{build/cadical}) with the logging (\texttt{-l}) option on  \href{\gitlabpath/hw1/sat/sample.cnf}{\texttt{sample.cnf}}, and the solver will output a detailed trace of its execution.
 
 Using this detailed trace, reconstruct the behavior of the underlying CDCL algorithm by filling out the following abstract trace template, given as a list of abstract trace entries:
 
@@ -107,7 +107,7 @@ Using this detailed trace, reconstruct the behavior of the underlying CDCL algor
 \item $\ldots$
 \end{itemize}
 
-To produce the abstract trace, create an abstract trace  entry (``Level'') whenever the decision level changes in the detailed trace due to a new decision or backtracking. When filling out the entry template, use the literal names from the detailed trace. For example, the solver will represent the literal $\neg x_1$ as \texttt{-1}. Use \href{https://www.graphviz.org}{GraphViz} to visualize the implication graph at a given level. The  \href{\gitlab/tree/master/hw1/sat/impl-graph.dot}{\texttt{impl-graph.dot}} file shows an example of how to specify implication graphs with GraphViz. Use the LaTeX \texttt{\textbackslash includegraphics} command to insert the resulting graph images into your \texttt{hw1.pdf} file.
+To produce the abstract trace, create an abstract trace  entry (``Level'') whenever the decision level changes in the detailed trace due to a new decision or backtracking. When filling out the entry template, use the literal names from the detailed trace. For example, the solver will represent the literal $\neg x_1$ as \texttt{-1}. Use \href{https://www.graphviz.org}{GraphViz} to visualize the implication graph at a given level. The  \href{\gitlabpath/hw1/sat/impl-graph.dot}{\texttt{impl-graph.dot}} file shows an example of how to specify implication graphs with GraphViz. Use the LaTeX \texttt{\textbackslash includegraphics} command to insert the resulting graph images into your \texttt{hw1.pdf} file.
 
 
 
@@ -149,7 +149,7 @@ A finite graph $G = \langle V, E\rangle$ consists of vertices $V=\{v_1,\ldots,v_
 
 \end{enumerate} \label{prob:encoding}
 
-\item (20 points) \label{prob:kcol} Implement the above encoding in \href{http://racket-lang.org}{Racket}, using the provided \href{\gitlab/tree/master/hw1/graph-coloring}{solution skeleton}.  See the  \href{\gitlab/blob/master/hw1/README.md}{\texttt{README}} file for instructions on obtaining solvers and the database of graph coloring problems.  Your program should generate the encoding for a given graph (see \href{\gitlab/tree/master/hw1/graph-coloring/graph.rkt}{\texttt{graph.rkt}}), call a SAT solver on it (\href{\gitlab/tree/master/hw1/graph-coloring/solver.rkt}{\texttt{solver.rkt}}), and then decode the result into an assignment of colors to vertices  (see \href{\gitlab/tree/master/hw1/graph-coloring/examples.rkt}{\texttt{examples.rkt}} and \href{\gitlab/tree/master/hw1/graph-coloring/k-coloring.rkt}{\texttt{k-coloring.rkt}}).
+\item (20 points) \label{prob:kcol} Implement the above encoding in \href{http://racket-lang.org}{Racket}, using the provided \href{\gitlabpath/hw1/graph-coloring}{solution skeleton}.  See the  \href{\gitlabpath/hw1/README.md}{\texttt{README}} file for instructions on obtaining solvers and the database of graph coloring problems.  Your program should generate the encoding for a given graph (see \href{\gitlabpath/hw1/graph-coloring/graph.rkt}{\texttt{graph.rkt}}), call a SAT solver on it (\href{\gitlabpath/hw1/graph-coloring/solver.rkt}{\texttt{solver.rkt}}), and then decode the result into an assignment of colors to vertices  (see \href{\gitlabpath/hw1/graph-coloring/examples.rkt}{\texttt{examples.rkt}} and \href{\gitlabpath/hw1/graph-coloring/k-coloring.rkt}{\texttt{k-coloring.rkt}}).
 
 Your implementation should be able to solve all of the easy and medium instances in under 15 minutes on an ordinary laptop.
 (The reference implementation does so in about 7 minutes.)
