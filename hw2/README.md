@@ -7,7 +7,7 @@ To complete the homework:
 - Clone the homework repository:
 
 ```
-$ git clone git@gitlab.cs.washington.edu:cse507/hw21au.git
+$ git clone git@gitlab.cs.washington.edu:cse507/hw23au.git
 ```
 
 - You can find the sources and solution skeletons in the `hw2` directory:

@@ -8,7 +8,7 @@ To complete the homework:
 - Clone the homework repository:
 
 ```
-$ git clone git@gitlab.cs.washington.edu:cse507/hw21wi.git
+$ git clone git@gitlab.cs.washington.edu:cse507/hw23au.git
 ```
 
 - You can find the sources and code in the `hw3` directory:

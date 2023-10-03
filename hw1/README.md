@@ -9,7 +9,7 @@ To complete the homework:
 - Install [Racket](http://racket-lang.org) and [Rosette](https://github.com/emina/rosette#installing-rosette).
 
 - Clone the homework repository:  
-  `$ git clone git@gitlab.cs.washington.edu:cse507/hw21au.git`
+  `$ git clone git@gitlab.cs.washington.edu:cse507/hw23au.git`
 
 - You can find the LaTeX and Racket sources in the `hw1` directory:   
   `$ cd hw1`  
