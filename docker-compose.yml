@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  base:
+    build:
+      args:
+        - CSE507_UBUNTU_TAG
+      context: .
+      target: base
+    container_name: cevans87__cse507__base
+    image: cevans87/cse507:base
+  latest:
+    build:
+      target: latest
+    container_name: cevans87__cse507__latest
+    extends: base
+    image: cevans87/cse507:latest
+  tested:
+    build:
+      target: tested
+    container_name: cevans87__cse507__tested
+    extends: latest
+    image: cevans87/cse507:tested
