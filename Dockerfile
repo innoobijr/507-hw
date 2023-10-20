@@ -7,9 +7,11 @@ ENV SSL_CERT_DIR=/etc/ssl/certs
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 RUN apt-get update -y \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        build-essential \
         ca-certificates \
         curl \
         git \
+        racket \
         sqlite3 \
         sudo \
     && apt-get clean \
@@ -17,18 +19,12 @@ RUN apt-get update -y \
     && groupmod -n cse507 ubuntu \
     && usermod -d /home/cse507 -c CSE507 -l cse507 ubuntu \
     && echo "cse507 ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers \
-    && curl --retry 5 -Ls "${RACKET_INSTALLER_URL}" > racket-install.sh \
-    && echo "yes\n1\n" | sudo sh racket-install.sh --create-dir --unix-style --dest /usr/ \
-    && rm racket-install.sh \
-    && sudo raco setup \
-    && sudo raco pkg config --set catalogs \
-        "https://download.racket-lang.org/releases/${RACKET_VERSION}/catalog/" \
-        "https://pkg-build.racket-lang.org/server/built/catalog/" \
-        "https://pkgs.racket-lang.org" \
-        "https://planet-compats.racket-lang.org" \
-    && yes | sudo raco pkg install rosette
+    && yes | raco pkg install rosette
 USER cse507
 WORKDIR /home/cse507
+RUN git clone git@github.com:arminbiere/cadical.git \
+    && cadical/configure -l \
+    && cadical/make
 
 FROM --platform=linux/amd64 base AS latest
 USER cse507

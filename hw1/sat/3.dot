@@ -1,0 +1,13 @@
+digraph ImplicationGraph {
+  rankdir=LR;
+  margin=0;
+
+  n1 [label="-1@0"];
+  n2 [label="-2@0"];
+  n3 [label="3@0"];
+  n4 [label="4@0"];
+
+  n1 -> n3 [label="-1 2 4"];
+  n1 -> n4 [label="1 4"];
+  n4 -> n2 [label="-2 -4"];
+}
