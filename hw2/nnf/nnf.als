@@ -26,25 +26,44 @@ fact wellFormedFormulas {
 	-- Encode the four properties as a conjunction of 4 constraints.
 	-- You can use more constraints if that's easier, though many more 
 	-- shouldn't be necessary.
+	all v: Var | no v.children 
+	all n: Not | one n.children
+	all a: And, o: Or | some a.children & o.children
+	no f: Formula | f in f.^(children)
+	
 }
 
 -- Returns true iff the given formula is in NNF. 
 pred NNF [f: Formula] {
 	--- This can be expressed with 1 constraint.
+	all f: Not | f.children in Var
 }
 
+--fun eval: Formula -> Boolean {
+--	Var -> True + And -> False + Not -> True
+--}
 -- Returns true iff the relation V is a function that maps 
 -- every Formula f to a Boolean value that is the meaning of f
 -- with respect to V's interpretation of f's variables.   
 pred valuation[ V: Formula -> Boolean ] {
 	--- This can be expressed with 4 constraints.
+	all v: Var |  True in v.V
+	all n: Not | False in n.children.V
+	all a: And | False not in ((a.children & (Var + Not)).V - True)
+	all o: Or  | True in ((o.children & (Var + Not)).V)
+
+	--let descendents = o.children {
+	  --all f: Var + Not | f in descendents and Boolean in f.V
+	--} 
 }
 
 -- Returns true iff V is a valuation that satisfies f.
 pred satisfies[V: Formula -> Boolean, f: Formula] {
 	--- This can be expressed with 2 constraints.
+	valuation[V]
+	all a : And | a in f.*children and False not in ((a.children & (Var + Not)).V - True)
+	all o : Or | o in f.*children and True in ((o.children & (Var + Not)).V)
 }
-
 -- Returns the positive set of the valuation V with respect to the formula f.
 -- That is, when given a relation v that is a valuation for the formula f, 
 -- returns the set of all literals in f that are satisfied by V. 
@@ -52,7 +71,7 @@ fun pos[ V: Formula -> Boolean, f: Formula ] : set Formula {
 	--- This can be specified as a short relational expression (1 line). 
 	--- The following is a **placeholder expression** to let Alloy compile the skeleton spec. 
 	--- Replace the placeholder with your solution.
-	Formula
+	 {  a: Var + Not | a in f.^children and True in a.V }
 }
 
 -- The Monotonicity of NNF theorem from Homework 1: 
@@ -118,27 +137,28 @@ pred interesting[f: Formula] {
 -- Search for an interesting formula in a universe consisting
 -- of at most 8 formulas. A formula is interesting if it contains each
 -- different subtype of formula as a descendent.
-run interesting for 8 Formula expect 1 
+--run interesting for 8 Formula expect 1 
 
 -- Search for formula that is both interesting and in NNF.
-showNNF: 
-run { 
-	some f : Formula | interesting[f] and NNF[f]
-} for 8 Formula expect 1 
+--showNNF: 
+--run { 
+--	some f : Formula | interesting[f] and NNF[f]
+--} for 8 Formula expect 1 
 
 -- Search for an interesting formula and a valuation. 
-showValuation : 
-run {
-	some f : Formula, V: Formula -> Boolean | 
-		interesting[f] and valuation[V]
-} for 8 Formula expect 1 
+--showValuation : 
+--run {
+--	some f : Formula, V: Formula -> Boolean |
+--    interesting[f] and valuation[V]
+--} for 16 Formula expect 1 
 
 -- Search for an interesting formula and a valuation that satisfies it,
 -- and that maps at least one variable to True and at least one to False.
-showSAT : 
+
+showSAT :
 run {
 	some f : Formula, V: Formula -> Boolean | 
-		interesting[f] and satisfies[V, f] and Boolean in V[Var]
+	 interesting[f] and satisfies[V, f] and Boolean in V[Var]
 } for 8 Formula expect 1 
 
 
@@ -146,5 +166,5 @@ run {
 -- most 8 formulas. If a model is found, it represents a counterexample to 
 -- the theorem. The "expect 0" clause is optional:  
 -- it's a comment that says we are expecting these constraints to have no model.
-checkTheorem: 
-check { MonotonicityOfNNF } for 8 Formula expect 0 
+--checkTheorem: 
+--check { MonotonicityOfNNF } for 8 Formula expect 0 

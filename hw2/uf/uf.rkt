@@ -12,6 +12,24 @@
 ; definition. For example, uncommenting the following definition
 ; would cause every call to - in matrix.rkt to be refer to this -.
 ;
+(define BV? (bitvector 32))
+
+;(define-symbolic y a b BV?)
+
+(define-symbolic uadd (~> BV? BV? BV?))
+  
+(define (bvadd . xs)
+  (foldl uadd (bv 0 32) xs)
+)
+
+;(define-symbolic transpose (-> list list))
+;(assume (equal? a b))
+;(assume (equal? (add a b) (add b a)))
+;(assume (equal? (mul y y) (mul (bvneg y) (bvneg y))))
+;(assume (equal? (mul a b) (mul b a)))
+
+;(define-symbolic* bvadd (~> (bitvector 32) (bitvector 32) (bitvector 32)))
+
 ; (define (- a b)
 ;   (define-symbolic uf- (~> real? real? real?)) 
 ;   (uf- a b))

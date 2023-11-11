@@ -1,5 +1,7 @@
 #lang rosette
 
+;(output-smt "x")
+
 (require "uf.rkt")
 
 ; This module implements some basic operations on matrices, 
@@ -21,6 +23,15 @@
 (define (dot-product u v)
   (apply bvadd (map bvmul u v)))
 
+
+(define (sq A)
+  (for/list ([A-row A])
+    (for/list ([B-row A-row])
+	(bvshl B-row (bv 2 32))
+	)
+    )
+  )
+
 ; Returns the transpose of the matrix A.
 (define (transpose A)
   (apply map list A))
@@ -32,6 +43,7 @@
   (for/list ([A-row A])
     (for/list ([B-row (transpose B)])
       (dot-product A-row B-row))))
+
 
 ; Returns an n x n matrix of fresh symbolic int? constants.
 (define (symbolic-matrix n)
@@ -66,5 +78,5 @@
 ; The following tiny queries take seconds to verify.
 ; Increasing the size argument by 1 causes both queries to
 ; not terminate even after a few minutes!
-(query-1 3)
-(query-2 3)
+(query-1 5)
+;(query-2 3)
