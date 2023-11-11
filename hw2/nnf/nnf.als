@@ -30,13 +30,14 @@ fact wellFormedFormulas {
 	all n: Not | one n.children
 	all a: And, o: Or | some a.children & o.children
 	no f: Formula | f in f.^(children)
+	all f : Formula | f in (Var + Not) or f in (And + Or) 
 	
 }
 
 -- Returns true iff the given formula is in NNF. 
 pred NNF [f: Formula] {
 	--- This can be expressed with 1 constraint.
-	all f: Not | f.children in Var
+	all f: Not | f.children in (Var + Not)
 }
 
 --fun eval: Formula -> Boolean {
@@ -51,18 +52,14 @@ pred valuation[ V: Formula -> Boolean ] {
 	all n: Not | False in n.children.V
 	all a: And | False not in ((a.children & (Var + Not)).V - True)
 	all o: Or  | True in ((o.children & (Var + Not)).V)
-
-	--let descendents = o.children {
-	  --all f: Var + Not | f in descendents and Boolean in f.V
-	--} 
 }
 
 -- Returns true iff V is a valuation that satisfies f.
 pred satisfies[V: Formula -> Boolean, f: Formula] {
 	--- This can be expressed with 2 constraints.
 	valuation[V]
-	all a : And | a in f.*children and False not in ((a.children & (Var + Not)).V - True)
-	all o : Or | o in f.*children and True in ((o.children & (Var + Not)).V)
+	all a : And, o: Or | a in f.*children and o in f.*children and False not in ((a.children & (Var + Not)).V - True)  and True in ((o.children & (Var + Not)).V)
+	--all o : Or | o in f.*children and True in ((o.children & (Var + Not)).V)
 }
 -- Returns the positive set of the valuation V with respect to the formula f.
 -- That is, when given a relation v that is a valuation for the formula f, 
@@ -158,7 +155,7 @@ pred interesting[f: Formula] {
 showSAT :
 run {
 	some f : Formula, V: Formula -> Boolean | 
-	 interesting[f] and satisfies[V, f] and Boolean in V[Var]
+	 interesting[f] and NNF[f] and satisfies[V, f] and Boolean in V[Var]
 } for 8 Formula expect 1 
 
 
