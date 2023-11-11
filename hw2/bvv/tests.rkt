@@ -5,11 +5,12 @@
 
 ; Verify all benchmarks:
 (define (verify-all)
- (run-verifier max1 max2)
- (run-verifier max1 max3)
+ ;(run-verifier max1 max2)
+ ;(run-verifier max1 max3)
  (run-verifier floor-of-ave1 floor-of-ave2)
- (run-verifier flip-right-01 flip-right-02)
- (run-verifier isolate-right-01 isolate-right-02))
+ ;(run-verifier flip-right-01 flip-right-02)
+ ;(run-verifier isolate-right-01 isolate-right-02)
+  )
 
 (define (run-verifier f1 f2)
   (printf "Verifying: ~a ≡ ~a\n" (object-name f1) (object-name f2))

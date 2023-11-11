@@ -7,7 +7,10 @@
 ; * 'CONTRADICTION if no interpretation I satisfies F;
 ; * 'CONTINGENCY if there are two interpretations I and I′ such that I satisfies F and I' does not.
 (define (classify F)
-  (error 'classify "not implemented yet!"))
+  (cond
+    [(eq? (verify (assert F)) (unsat)) 'TAUTOLOGY]
+    [(eq? (solve (assert F)) (unsat)) 'CONTRADICTION]
+    [else 'CONTINGENCY]))
 
 (define-symbolic* p q r boolean?)
 
