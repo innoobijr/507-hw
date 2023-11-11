@@ -1,11 +1,13 @@
 \documentclass{handout}
-
+\usepackage{xcolor}
 \include{preamble}
 
 \HW{2}
 \Due{November 10, 2023}
 
 \begin{document}
+\newcommand{\brc}[1]{\lbrace{#1}\rbrace}
+\newcommand{\brck}[3][s_{T_{=}} &=]{\[{#1} \lbrace{#2}\rbrace \qquad \textrm{#3}\]}
 \maketitle
 
 \begin{tabular}{ll}
@@ -33,6 +35,18 @@ intermediate partitions (sets of congruence classes) after each merge or
 propagation step, together with a brief explanation of how the algorithm arrived
 at that partition (e.g., ``by literal $f(x) = y$, merge $f(x)$ with $y$'').
 \label{prob:first}
+\brck{\brc{x}, \brc{y}, \brc{f(x)} \brc{f(y)}, \brc{g(x)}, \brc{g(f(x))} \brc{g(f(y))}, \brc{f(g(x))}, \brc{g(f(y))}}{}
+\brck[]{f(g(x)), g(f(x))}{f(g(x)) = g(f(x)}
+\brck[]{f(y), x}{f(y) = x}
+\brck[]{f(g(f(y))), x}{f(g(f(y))) = x}
+\brck[]{f(g(f(y))), x, f(y), g(f(x), f(g(x))}{merge. {f(g(f(y)) = f(g(x))}}
+\brck[]{g(f(y)), g(x)}{\text{if f(y)=x  then g(f(y)) = g(x). func congruence}}
+\brck[]{g(f(y)), y, g(x)}{\text{if f(g(f(y)))= f(g(x)) = x = f(y) then g(x) = y. func congruence}}\\
+
+There are two congruence classes. The first contains $g(f(x)$ and $x$. However the the disequality $g(f(x)) \neq x$ makes $T_{=}$ unsat.
+
+
+
 
 
 
@@ -54,7 +68,14 @@ show the individual steps of the purification process, just the final result.
 \[
 \begin{array}{@{}l|l}
 T_=           & T_R\\ \hline
-\ldots & \ldots \\
+ g(a_1,z) = f(g(x,y))& a_1 = x + y \\
+ a_3 = g(x,x) & x + z = y \\
+ f(z) \neq g(a_1,a_2)& a_2 = 0 \\
+ & z \geq a_2 \\
+ & x \geq y\\
+ & a_3 = z\\
+ & a_4 = 2x\\
+
 \end{array}
 \]
 
@@ -69,8 +90,22 @@ only---leave the remaining column in that row empty.
 
 \[
 \begin{array}{@{}l|l}
-T_= & T_R\\ \hline
-\ldots & \ldots \\
+T_=           & T_R\\ \hline
+ g(a_1,z) = f(g(x,y))& a_1 = x + y \\
+ a_3 = g(x,x) & x + z = y \\
+ f(z) \neq g(a_4,a_2)& a_2 = 0 \\
+ & z \geq a_2 \\
+ & x \geq y\\
+ & a_3 = z\\
+ & a_4 = 2x\\ \hline
+ & y = x \\
+ & z = a_2\\
+ & a_3 = a_2\\
+ & a_1 = a_4\\
+ g(a_1, a_2) = f(g(x, y)& \\
+ g(a_1, a_2) = f(a_3)& \\
+ \textcolor{red}{g(a_4, a_2) = f(z)}& \\ \hline
+ \textcolor{red}{g(a_4, a_2) \neq f(z)}& \\
 \end{array}
 \]
 
@@ -91,14 +126,25 @@ T_= & T_R\\ \hline
 Prove that $T_A$ is not convex by constructing $n\geq 3$ formulas in $T_A$ such
 that $F_1 \Rightarrow (F_2 \vee\ldots \vee F_n)$ but $F_1 \not\Rightarrow F_i$
 for any $i \in [2\ldots n]$.
-
-
+\[F_1 : read(write(a, i, v), j) = v\]
+\[F_2 : read(a, j) = v\]
+\[F_3 : read(write(a,i,v), j) = read(a, j)\]
+\[ F_1 \Rightarrow F_2 \vee F_3\]
+\[ F_1 \nRightarrow F_2 \]
+\[ F_1 \nRightarrow F_3 \]
 
 
 \item (10 points) \label{prob:smt:last} Prove that the theory of equality $T_=$
 is convex.
 
+Let $F_1$ and $F_2$ be sat in $T_{=}$ such that $V$ is the set of all the variables in $F_1$ and $F_2$. Convexity says that \[ \forall x, y \in | F_1 \Rightarrow x=y, F_2 \Rightarrow x=y,  F_1 \wedge F_2 \text{ is sat} \].
 
+Let $S$ be the set of all equalities implied by $F_1$ and $F_2$, and $T$ the remaining equalities. There is an assignment $\alpha$ where $\alpha \models (x_i=y_i)$. That is, there is an assignment that that satisfied the equalities in $S$. Additionally, there is no assignment that satisfies the remaining equalities in $T$. We falsely assume that $\alpha \models \neg F_1$. There are three cases.
+(1) $T$ is empty. Then it means $F_1$ is false which contradicts the our claims about $\alpha$.
+(2) there is some equalities in $T$ which is implied by $F_1$. Then that equality would also need to be in $S$ which would imply a contradiction.
+(3) for all equalities in $T$ are implied by $F_1$, then $F_1$ is non-convex which also implies a contradiction given our claim about $\alpha$ and $S$.
+
+so $\alpha \models F_1$. Otherwise, $F_1$ would imply a contradiction. 
 
 
 
@@ -265,7 +311,10 @@ the typeset (short) answers to the following questions.
 
 What is the \emph{minimal} set of operators you need to abstract with
 uninterpreted functions in order to accelerate both queries?   Do your
-abstractions depend on any properties of these operators?\looseness=-1
+abstractions depend on any properties of these operators?\looseness=-1\\
+
+\textbf{Answer:}
+In order to speed up the queries, I only really needed to write an uninterpreted function for the dot product or more specifically addition. Since multiplication distributes over addition, the dot product of the vectors can be written as the sum of the element-wise products.
 
 
 
@@ -276,7 +325,9 @@ uninterpreted functions, but you are allowed to rewrite each query to solve an
 achieve the same level of performance as in Problem \ref{prob:uf:first}, and
 briefly argue why your rewriting strategy results in equivalent verification
 problems. (\textbf{Hint:}  thinking about equalities is key to solving this
-problem.)
+problem.)\\
+\textbf{Answer:}
+In query-1 we assume $A = B$ and try to show that $A * B = B * A$. If $A = B$ then we can write the the proposition we are asserting as $ A^2 = B^2$ since we can substitute $A$ for $B$ and vice versa. Thus instead of multiplying, we instead do a logical left shift by 2 on all the bitvectors in a matrix. I replace the call to $\mathtt{multiply}$ with a call to a new function $\mathtt{sq}$ which squares a matrix. This equivalent queries $A^2 = B^2$ is faster than the former. For query-2, asumming $B = A^T$ we are asserting than $(A*A)^T = B * B$. We can replace $A*A$ with the equivalent $A^2$. Similarly for $B$. Thus the new assertion is $(A^2)^T = B^2$. We can use the same strategy as in query-1, replace all call to $\mathtt{multiply}$ with $\mathtt{sq}$. This equivalent assertion speeds up our query for query-2.
 
 
 
