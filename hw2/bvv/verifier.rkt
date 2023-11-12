@@ -1,17 +1,12 @@
-#lang rosette
+#lang racket
 ; TODO UNCOMMENT THIS.
-(require (only-in "bv.rkt" define-fragment fragment-ast) "solver.rkt")
+(require
+  (only-in "bv.rkt" define-fragment fragment-ast)
+  (only-in rosette bv)
+  "solver.rkt")
 ;(require "bv.rkt" "solver.rkt")
 
 (provide verify)
-
-(define-fragment (bar x y)
-  (define a (bvlshr x 1))
-  (define b (bvlshr x 2))
-  (return (bvadd a b)))
-
-(define-fragment (baz x y)
-  (return x))
 
 ; keep track of recurrences in variable definition and append count to ids to disambiguate.
 (define occurrence (make-hash))
@@ -21,13 +16,13 @@
 ;(define (of_ids id0 id1) (format "~a_~a" id0 id1))
 (define (of_ids id0 id1) (with_occurrence (format "~a_~a" id0 id1)))
 
-(define (of_const const) (regexp-replace #rx#"\\(bv " (regexp-replace #rx#" 32\\)" (format "~a" (bv const (bitvector 32))) "") ""))
+(define (of_const const) (regexp-replace #rx#"\\(bv " (regexp-replace #rx#" 32\\)" (format "~a" (bv const 32)) "") ""))
 
 (define (of_expr id expr)
   (match expr
     
     ; if-statement
-    [`(if ,expr ,expr_true ,expr_false) (list "if" (of_expr id expr) (of_expr id expr_true) (of_expr id expr_false))]
+    [`(if ,expr ,expr_true ,expr_false) (list 'ite (of_expr id expr) (of_expr id expr_true) (of_expr id expr_false))]
     
     ; unary-op
     [(list unary-op expr) (list unary-op (of_expr id expr))]
@@ -65,13 +60,17 @@
   (match stmt
     ; define id expr
     [`(define ,id_other ,expr)
+     ; This is the first occurrence of variable. Set occurrence to 0.
      (hash-set! occurrence (format "~a_~a" id id_other) 0)
      (list 'define-fun (of_ids id id_other) '() (get_expr_kind expr) (of_expr id expr))]
     
     ; set! id expr
     [`(set! ,id_other ,expr)
-     ; todo do rhs side before updating occurrence and doing lhs.
+     
+     ; evauluate rhs side before updating occurrence and then do lhs.
      (define rhs (of_expr id expr))
+     
+     ; this is effectively a redefinition. Bump the occurrence number so that this variable is disambiguated.
      (hash-update! occurrence (format "~a_~a" id id_other) (lambda (val) (+ val 1)))
      (list 'define-fun (of_ids id id_other) '() (get_expr_kind expr) rhs)]))
 
@@ -79,7 +78,7 @@
 (define (of_rets ret1 ret2)
   (match (list ret1 ret2)
     [(list `(return ,expr1) `(return ,expr2))
-     (list `assert  (list 'not (list '= "#x00000000" (list bvxor (of_expr "A" expr1) (of_expr "B" expr2)))))]))
+     (list `assert  (list 'not (list '= "#x00000000" (list `bvxor (of_expr "A" expr1) (of_expr "B" expr2)))))]))
 
 ; assert equivalences between two equal-length lists of args. (a0 a1 a2) (b0 b1 b2) -> ((assert = a0 b0) ...)
 (define (of_argss id1 id2 ids1_inner ids2_inner)
@@ -129,17 +128,9 @@
 (define (verify f1 f2)
   (hash-clear! occurrence)
   (define encoding (of_progs f1 f2))
-  (pp_encoding encoding)
+  ;(pp_encoding encoding)
   (match (solve encoding)
     [#f `EQUIVALENT]
     ; Solve returns variables set for both f1 and f2. Half this list is redundant.
     [mapping (list-tail (hash-values mapping) (/ (hash-count mapping) 2))]))
   
-
-;(verify bar baz)
-
-;(verify bar baz)
-;(printf "Bar ~a\n" (unwrap-prog foo))
-;(verify bar baz)
-;(solve '((declare-const a Int)))
-;(solve "(declare-const a Int)")
