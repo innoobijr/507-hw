@@ -58,9 +58,9 @@ and answer the following questions.
   \item (2 points) \label{prob:imp-first} The \imp grammar uses the
   \lstinline{begin} form to compose zero or more \imp statements into a single
   statement. What is the meaning of the statements \lstinline{(begin)} and
-  \lstinline{(begin $S$)} for any $S$?
-
+  \lstinline{(begin $S$)} for any $S$?\\
   
+  \textbf{Answer:} When a \lstinline{begin} statement is evaluated with no arguments it returns the current environment. If it is evaluated with a sequence of statements. The interpreter is recursively applied to the new arguments. It is essentially a fold-left where the procedure being called is the \setlist{interpretS}. Once the inner-most statement is evaluates it returns an environment and that environment is used to evaluate the next statement. If it fails on any \lstinline{S} then the interpreter aborts and returns.   
 
   \item (4 points) The \imp interpreter requires every variable to be assigned
   before it is referenced, and it also implements simple lexical scoping. Some
@@ -69,13 +69,26 @@ and answer the following questions.
   (\lstinline{if}, \lstinline{while}, or \lstinline{begin}) introduce local
   scopes and what part of the statement has its own local scope?
 
-  
+  \textbf{Answer:} In \lstinline{IMP} \lstinline{begin} is the identifier used to indicate the creation of scope for \lstinline{IMP} programs. \lstinline{while} statements  introduce local scope for the evaluation of each iteration of the body (the conditions of the \lstinline{if} statement.  If the condition is true, it created a local scope where an invariant (\lstinline{B}) is evaluated. If the condition is false it return the environment. Is the list of statements does not have a return) the loop will not terminate. 
 
   \item (4 points) \label{prob:imp-last}  What are the possible outcomes of
   interpreting an arbitrary \imp program on arbitrary inputs? Assume that the
   program is syntactically well-formed; it obeys the \imp scoping rules; and it
-  is given the right number of inputs according to its signature.
+  is given the right number of inputs according to its signature.\\
 
+  \textbf{Answer:}\\
+  
+This is just the semantics of the interpreter.
+
+\begin{itemize}
+    \item \textbf{skip}  returns the current environment
+    \item \textbf{abort} returns \lstinline{#f}
+    \item \textbf{begin} return the current environment
+    \item \textbf{sequencing} folds over a list of statements and evaluates then to either an environment or aborts. 
+    \item \textbf{assignment} assign a variables and return the current environment
+    \item \textbf{conditional} either return the current environment after successful evaluation of condition and expression or return \lstinline{#f}
+    \item \textbf{while} Either diverges or terminates with an environment or \lstinline{#f}
+\end{itemize}
   
 \end{questions}
 
@@ -123,7 +136,12 @@ modify the code in any other way. Submit your copy of \src[imp/]{proofs.rkt}.
 allow you to omit some annotations that would be required if the verifier used
 the rules given in lecture. Explain briefly (in a few sentences) how the
 implemented rules differ from the presented ones, and why these optimizations
-are correct.
+are correct. \\
+
+\textbf{Answer:} We exclude annotations for \lstinline{skip} and \lstinline{abort}. Since abort always return false it doesn't matter what the precondition. It takes any precondition and returns false. That is the postcondition always fails. \lstinline{skip} does nothing thus requires that the pre and postconditions are the same. This is a direct implication that is vacously satisfied. Thus it is only necessary to verify that consequence holds. 
+
+
+
 
 
 
@@ -207,7 +225,9 @@ and answer the following questions.
  \lstinline{havoc} using a different rule than the one shown in \lecture{12}.
  Briefly explain how the rules differ, and why the implemented one is
  correct.\looseness=-1
-
+ \\
+ 
+ \textbf{Answer:} In \lecture{12} the \lstinline{havoc} weakest precondition is calculated by quantifying over all the value in the postcondition. However, in the homework, this is done by using a single symbolic constant that represent havocable. This doesn't require explicit quantification over all possible values in the postcondition.
 
 
 \item The procedure \lstinline{interpretS+} extends the \imp\ interpreter from
@@ -220,10 +240,18 @@ and answer the following questions.
  Briefly answer the following questions about this implementation:
  \begin{enumerate}
   \item How does \lstinline{interpretS+} implement \lstinline{assume}, and why
-  is this a correct implementation of its semantics?
+  is this a correct implementation of its semantics?\\
+  
+ \textbf{Answer:} \lstinline{interpretS+} uses \lstinline{and} which according to the Racket documentation will return \lstinline{#f} if the expression fails, otherwise it will have return the evaluation of the next expression which in this case is the environment . This is the semantics we want for \lstinline{assume}. If the expression fails we don't want the rest of the  test to be evaluated. \\
+
+ 
   \item How can we implement the \imp\ \lstinline{assume} using \rosette's
   \lstinline{assume}?  Your answer should take the form of a Rosette code
-  snippet that should replace the given implementation.
+  snippet that should replace the given implementation.\\
+  
+ \textbf{Answer:} \lstinline{[ `(assume , C) (assume (interpret C env)) (assert #t) env]}
+
+ 
  \end{enumerate}
 
  \end{enumerate}

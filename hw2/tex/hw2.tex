@@ -3,11 +3,17 @@
 \include{preamble}
 
 \HW{2}
+Cameron Evans, Innocent Obi Jr.
+
 \Due{November 10, 2023}
 
 \begin{document}
 \newcommand{\brc}[1]{\lbrace{#1}\rbrace}
-\newcommand{\brck}[3][s_{T_{=}} &=]{\[{#1} \lbrace{#2}\rbrace \qquad \textrm{#3}\]}
+\newcommand{\brck}[3][s_{T_{=}} &=]{
+\begin{equation}
+{#1} \lbrace{#2}\rbrace \qquad \textrm{#3}
+\end{equation}
+}
 \maketitle
 
 \begin{tabular}{ll}
@@ -34,16 +40,33 @@ Provide the level of detail as in \lecture{07}.  In particular, show the
 intermediate partitions (sets of congruence classes) after each merge or
 propagation step, together with a brief explanation of how the algorithm arrived
 at that partition (e.g., ``by literal $f(x) = y$, merge $f(x)$ with $y$'').
-\label{prob:first}
+\label{prob:first}\\
+
+\textbf{Answer:}
+Initially, the equivalence classes are:
 \brck{\brc{x}, \brc{y}, \brc{f(x)} \brc{f(y)}, \brc{g(x)}, \brc{g(f(x))} \brc{g(f(y))}, \brc{f(g(x))}, \brc{g(f(y))}}{}
-\brck[]{f(g(x)), g(f(x))}{f(g(x)) = g(f(x)}
-\brck[]{f(y), x}{f(y) = x}
-\brck[]{f(g(f(y))), x}{f(g(f(y))) = x}
+
+Due to the first equality, we get the following merged equivalence class:
+\brck[]{f(g(x)), g(f(x))}{given f(g(x)) = g(f(x)}
+
+After the second and third equalities, we merge and get:
+\brck[]{f(y), x}{given f(y) = x}
+\brck[]{f(g(f(y))), x}{given f(g(f(y))) = x}
+
+This give use the following merged equivalence class:
+\brck[]{f(g(f(y))), f(y), x}{}
+
+If we substitute $f(y)$ for $x$, we can merged $f(g(f(y)))$ into the previous equivalence class: 
 \brck[]{f(g(f(y))), x, f(y), g(f(x), f(g(x))}{merge. {f(g(f(y)) = f(g(x))}}
+
+To find the the second equivalence class, we take $f(y) = x$ and get the following equalities:
+
 \brck[]{g(f(y)), g(x)}{\text{if f(y)=x  then g(f(y)) = g(x). func congruence}}
+
+Finally, 
 \brck[]{g(f(y)), y, g(x)}{\text{if f(g(f(y)))= f(g(x)) = x = f(y) then g(x) = y. func congruence}}\\
 
-There are two congruence classes. The first contains $g(f(x)$ and $x$. However the the disequality $g(f(x)) \neq x$ makes $T_{=}$ unsat.
+There are two congruence classes. The first contains $g(f(x)$ and $x$. However the disequality $g(f(x)) \neq x$ in contradictory as $g(f(x))$ and $x$ are in the same class. Hence, this $T_{=}$ formula is unsatisfiable.
 
 
 
@@ -223,8 +246,28 @@ to Static Single Assignment (SSA) form before translating it to bit vector
 logic.  Explain in a few sentences what property of this grammar allows you to
 avoid SSA conversion.
 
+\textbf{Answer:}
 
+There are no control-flow constructs in this language. Looping constructs are
+missing from the grammar and the \texttt{if}-statements are semantically
+identical to a z3's \texttt{ite} function (they return a single value and do not
+\texttt{define} or \texttt{set!} any \texttt{id}s). As such, there are no branch
+or join points in the language.
 
+Without loops, we would not add repeating \texttt{define} or \texttt{set!}
+statements (loop unrolling) in an conversion of a \texttt{prog}ram to SSA form.
+
+Without join points (both from lack of if-elif-else and looping control-flow
+constructs), we would not add $\phi$ function application statements in a
+conversion of a \texttt{prog}ram to SSA form.
+
+With that, converting a \texttt{prog}ram in SSA form would not introduce any new
+lines. All remaining lines are necessary and are semantically (with the minor
+exception of \texttt{set!}) in SSA form.
+
+\texttt{set!} effectively mutates a variable in our \texttt{prog}ram, and is the
+only statement in our conversion where semantic transformation is required to
+achieve SSA form as we need to generate a unique \texttt{id} for the assignment.
 
 \item (20 points) \label{prob:bvv:last} Implement a BMC-style verifier for the
 \texttt{BV} language in \racket, using the solution skeleton in the \src{bvv}
@@ -327,7 +370,7 @@ briefly argue why your rewriting strategy results in equivalent verification
 problems. (\textbf{Hint:}  thinking about equalities is key to solving this
 problem.)\\
 \textbf{Answer:}
-In query-1 we assume $A = B$ and try to show that $A * B = B * A$. If $A = B$ then we can write the the proposition we are asserting as $ A^2 = B^2$ since we can substitute $A$ for $B$ and vice versa. Thus instead of multiplying, we instead do a logical left shift by 2 on all the bitvectors in a matrix. I replace the call to $\mathtt{multiply}$ with a call to a new function $\mathtt{sq}$ which squares a matrix. This equivalent queries $A^2 = B^2$ is faster than the former. For query-2, asumming $B = A^T$ we are asserting than $(A*A)^T = B * B$. We can replace $A*A$ with the equivalent $A^2$. Similarly for $B$. Thus the new assertion is $(A^2)^T = B^2$. We can use the same strategy as in query-1, replace all call to $\mathtt{multiply}$ with $\mathtt{sq}$. This equivalent assertion speeds up our query for query-2.
+In query-1 we assume $A = B$ and try to show that $A * B = B * A$. If $A = B$ then we can write the the proposition we are asserting as $ A^2 = B^2$ since we can substitute $A$ for $B$ and vice versa. Thus instead of multiplying, we instead do a logical left shift by 2 on all the bitvectors in a matrix. I replace the call to $\mathtt{multiply}$ with a call to a new function $\mathtt{sq}$ which squares a matrix. This equivalent queries $A^2 = B^2$ is faster than the former. For query-2, assuming $B = A^T$ we are asserting than $(A*A)^T = B * B$. We can replace $A*A$ with the equivalent $A^2$. Similarly for $B$. Thus the new assertion is $(A^2)^T = B^2$. We can use the same strategy as in query-1, replace all call to $\mathtt{multiply}$ with $\mathtt{sq}$. This equivalent assertion speeds up our query for query-2. 
 
 
 
