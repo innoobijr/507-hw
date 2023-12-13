@@ -82,9 +82,17 @@
   (begin 
     (#:claim true)
     (:= y x)
+    (#:claim (= y x))
     (if (< x 0)
-        (:= y (- x))
-        (skip))
+        (begin
+         (#:claim (&& (= x y) (< x 0)))
+         (#:claim (>= (- x) 0))
+         (:= y (- x))
+        )
+        (begin
+          (#:claim (&& (= x y) (! (< x 0))))
+          (skip))
+        )
     (#:claim (&& (>= y 0) (|| (= y x) (= y (- x)))))))
 
 (verify-claims absolute)
@@ -92,15 +100,25 @@
 ; { n >= 0 && d > 0 } div (n d) : (q r) { n = q*d+r && r >= 0 && r < d }
 ; ~6 claims needed in addition to the given ones.
 (procedure div (n d) : (q r)
-  (begin
-    (#:claim (&& (>= n 0) (> d 0)))
-    (:= q 0)
-    (:= r n)
-    (while (>= r d)
       (begin
-        (:= q (+ q 1))
-        (:= r (- r d))))
-    (#:claim (&& (= n (+ (* q d) r)) (>= r 0) (< r d)))))
+        (#:claim (&& (>= n 0) (> d 0)))
+        (#:claim (&& (= n (+ (* d 0) n)) (>= n 0) (> d 0)))
+         (:= q 0)
+        (#:claim (&& (= n (+ (* d q) n)) (>= n 0) (> d 0)))
+         (:= r n)
+        (#:claim (&& (= n (+ (* d q) r)) (>= r 0) (> d 0)))
+        ;(#:claim (= x (+ (* q y) r)))
+        (while (>= r d)
+               (begin
+                 ;(#:claim (&& (&& (= n (+ (* d q) r)) (>= r 0) (> d 0)) (>= r d)))
+                 (#:claim (&& (= n (+ (* d (+ q 1)) (- r d))) (>= (- r d) 0) (> d 0)))
+                 (:= r (- r d))
+                 (#:claim (&& (= n (+ (* d (+ q 1)) r)) (>= r 0) (> d 0)))
+                 (:= q (+ q 1))
+                 )
+               )
+       (#:claim (&& (&& (= n (+ (* q d) r)) (>= r 0) (> d 0)) (! (>= r d))))
+       (#:claim (&& (= n (+ (* q d) r)) (>= r 0) (< r d)))))
 
 (verify-claims div)
 
@@ -110,18 +128,29 @@
   (begin
     (#:claim (> c 0))
     (:= a 1)
+    (#:claim (&& (> a 0) (> c 0)))  ;1
     (:= b 1)
+    (#:claim (&& (> b 0) (> a 0) (> c 0)));2
     (while (< (+ (* a a) (* b b)) (* c c))  
       (begin
-        (while (< (+ (* a a) (* b b)) (* c c)) 
-          (:= b (+ b 1)))
+        (#:claim (&& (> b 0) (> a 0) (> c 0) )) ;3
+        (while (< (+ (* a a) (* b b)) (* c c))
+               (begin
+                 (#:claim (&& (> (+ b 1) 0) (> a 0) (> c 0) )) ;4
+               (:= b (+ b 1))))
+        (#:claim (&& (&& (> b 0) (> a 0) (> c 0) ) (! (< (+ (* a a) (* b b)) (* c c))))) ; 5
         (if (> (+ (* a a) (* b b)) (* c c))
             (begin
+               (#:claim (&& (> (+ a 1) 0) (> c 0))) ; 6
               (:= a (+ a 1))
+               (#:claim (&& (> a 0) (> c 0))) ; 7
               (:= b 1))
             (skip))))
+     (#:claim (&& (&& (> b 0) (> a 0) (> c 0)) (! (< (+ (* a a) (* b b)) (* c c))))) ; 8
     (if (= (+ (* a a) (* b b)) (* c c))
-        (skip)
+        (begin
+          (#:claim (&& (&& (> b 0) (> a 0) (> c 0)) (= (+ (* a a) (* b b)) (* c c))))
+          (skip))
         (abort))
     (#:claim (&& (> a 0) (> b 0) (= (* c c) (+ (* a a) (* b b)))))))
 
